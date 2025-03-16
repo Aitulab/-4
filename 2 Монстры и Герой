@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <limits>
+
+using namespace std;
+
+struct Character {
+    string name;
+    int health;
+    int attack;
+    int defense;
+    
+    void attackTarget(Character &target) {
+        int damage = attack - target.defense;
+        if (damage < 0) damage = 0;
+        cout << name << " атакует " << target.name << " и наносит " << damage << " урона!\n";
+        target.health -= damage;
+    }
+};
+
+void printStatus(const Character &hero, const Character &monster) {
+    cout << "\n--- Статус боя ---\n";
+    cout << hero.name << " (Здоровье: " << hero.health << ", Защита: " << hero.defense << ")\n";
+    cout << monster.name << " (Здоровье: " << monster.health << ", Защита: " << monster.defense << ")\n";
+    cout << "----------------------\n\n";
+}
+
+void clearScreen() {
+    system("cls"); // Для Windows, для Linux/macOS используйте "clear"
+}
+
+int getValidInput() {
+    int choice;
+    while (true) {
+        cout << "Выберите действие:\n1. Атаковать\n2. Пропустить ход\n> ";
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Ошибка ввода! Попробуйте снова.\n";
+            continue;
+        }
+        if (choice == 1 || choice == 2) {
+            return choice;
+        }
+        cout << "Некорректный выбор! Попробуйте снова.\n";
+    }
+}
+
+int main() {
+    srand(time(0));
+    char playAgain;
+    do {
+        Character hero = {"Герой", 100, 20, 5};
+        Character monster = {"Монстр", 80, 15, 3};
+        
+        while (hero.health > 0 && monster.health > 0) {
+            clearScreen();
+            printStatus(hero, monster);
+            
+            int choice = getValidInput();
+            if (choice == 1) {
+                hero.attackTarget(monster);
+            }
+            
+            if (monster.health > 0) {
+                cout << "Монстр атакует!\n";
+                monster.attackTarget(hero);
+            }
+        }
+        
+        clearScreen();
+        printStatus(hero, monster);
+        if (hero.health > 0) {
+            cout << "Поздравляем! Вы победили монстра!\n";
+        } else {
+            cout << "Вы проиграли... Монстр оказался сильнее.\n";
+        }
+        
+        cout << "Хотите сыграть еще раз? (y/n): ";
+        cin >> playAgain;
+    } while (playAgain == 'y' || playAgain == 'Y');
+    
+    cout << "Спасибо за игру!\n";
+    return 0;
+}
