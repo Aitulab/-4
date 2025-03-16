@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+
+using namespace std;
+
+void printField(const vector<char>& field) {
+    system("cls"); 
+    cout << "\n " << field[0] << " | " << field[1] << " | " << field[2] << " \n";
+    cout << "---+---+---\n";
+    cout << " " << field[3] << " | " << field[4] << " | " << field[5] << " \n";
+    cout << "---+---+---\n";
+    cout << " " << field[6] << " | " << field[7] << " | " << field[8] << " \n\n";
+}
+
+bool checkWin(const vector<char>& field, char player) {
+    const int winCombos[8][3] = {
+        {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, 
+        {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, 
+        {0, 4, 8}, {2, 4, 6}
+    };
+    
+    for (const auto& combo : winCombos) {
+        if (field[combo[0]] == player && field[combo[1]] == player && field[combo[2]] == player) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isDraw(const vector<char>& field) {
+    for (char cell : field) {
+        if (cell >= '1' && cell <= '9') return false;
+    }
+    return true;
+}
+
+int getValidMove(vector<char>& field) {
+    int move;
+    while (true) {
+        cout << "Введите номер клетки (1-9): ";
+        if (!(cin >> move)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Ошибка! Введите число от 1 до 9.\n";
+            continue;
+        }
+        if (move < 1 || move > 9 || field[move - 1] == 'X' || field[move - 1] == 'O') {
+            cout << "Некорректный ход! Попробуйте снова.\n";
+            continue;
+        }
+        break;
+    }
+    return move - 1;
+}
+
+int main() {
+    char playAgain;
+    do {
+        vector<char> field = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+        char currentPlayer = 'X';
+        bool gameWon = false;
+
+        while (true) {
+            printField(field);
+            cout << "Игрок " << currentPlayer << " делает ход.\n";
+            int move = getValidMove(field);
+            field[move] = currentPlayer;
+
+            if (checkWin(field, currentPlayer)) {
+                printField(field);
+                cout << "Игрок " << currentPlayer << " победил!\n";
+                gameWon = true;
+                break;
+            }
+            if (isDraw(field)) {
+                printField(field);
+                cout << "Ничья!\n";
+                break;
+            }
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+        }
+        cout << "Хотите сыграть еще раз? (y/n): ";
+        cin >> playAgain;
+    } while (playAgain == 'y' || playAgain == 'Y');
+
+    cout << "Спасибо за игру!" << endl;
+    return 0;
+}
